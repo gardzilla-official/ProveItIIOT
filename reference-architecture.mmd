@@ -1,0 +1,107 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#29B5E8', 'primaryTextColor': '#fff', 'primaryBorderColor': '#1a8ab8', 'lineColor': '#6E7781', 'secondaryColor': '#11567F', 'tertiaryColor': '#F4F4F4', 'background': '#ffffff'}}}%%
+
+flowchart TB
+    subgraph FLOOR["<b>MANUFACTURING FLOOR</b>"]
+        direction TB
+        SENSORS["🔧 PLCs / RTUs / Sensors<br/><i>Temperature, Vibration, Pressure, Current</i>"]
+        HIVEMQ["<b>HiveMQ MQTT Broker</b><br/>• QoS 1/2 Guaranteed Delivery<br/>• TLS Encryption<br/>• Clustered HA"]
+        ASSETS["<b>Asset Types</b><br/>Furnaces • Conveyors • Presses<br/>Robots • Compressors • HVAC"]
+        
+        SENSORS --> HIVEMQ
+        ASSETS -.-> SENSORS
+    end
+
+    subgraph SNOWFLAKE["<b>SNOWFLAKE DATA CLOUD</b>"]
+        direction TB
+        
+        subgraph INGEST["<b>INGESTION LAYER</b>"]
+            SNOWPIPE["Snowpipe Streaming<br/><i>Sub-second latency</i>"]
+            RAW["TELEMETRY_RAW<br/><i>Landing Zone</i>"]
+            SNOWPIPE --> RAW
+        end
+
+        subgraph BRONZE["<b>BRONZE LAYER</b> (Raw)"]
+            TELBRONZE["TELEMETRY_BRONZE<br/>• Raw sensor readings<br/>• Device metadata<br/>• Event & ingest timestamps"]
+        end
+
+        subgraph SILVER["<b>SILVER LAYER</b> (Curated)"]
+            TELSILVER["TELEMETRY_SILVER<br/>• Cleansed & validated<br/>• Enriched with context<br/>• Standardized formats"]
+            REGISTRY["ASSET_REGISTRY<br/>• Equipment hierarchy<br/>• Maintenance history<br/>• Criticality levels"]
+        end
+
+        subgraph GOLD["<b>GOLD LAYER</b> (Feature Store)"]
+            FEATURES["ENTERPRISE_C_FEATURES<br/>• Rolling aggregations (1h, 24h, 7d)<br/>• Statistical features<br/>• Trend indicators<br/>• Cross-sensor correlations"]
+        end
+
+        subgraph ML["<b>SNOWPARK ML LAYER</b>"]
+            TRAINING["Model Training<br/>XGBoost • Random Forest<br/>Gradient Boost • Deep Learning"]
+            REGISTRY_ML["Model Registry<br/>Version Control<br/>Performance Logs"]
+            INFERENCE["Inference Engine<br/>• Real-time scoring<br/>• Batch predictions<br/>• Confidence intervals"]
+            
+            TRAINING --> REGISTRY_ML
+            REGISTRY_ML --> INFERENCE
+        end
+
+        subgraph PREDICTIONS["<b>PREDICTIONS & RULES LAYER</b>"]
+            PRED_TABLE["ASSET_PREDICTIONS<br/>• Failure probabilities<br/>• Failure modes<br/>• RUL estimates<br/>• SHAP values"]
+            RULES["PREDICTIVE_RULES<br/>• Alert thresholds<br/>• Routing logic<br/>• Work order templates"]
+        end
+
+        subgraph CORTEX["<b>CORTEX AI SERVICES</b>"]
+            SEMANTIC["Semantic View<br/><b>PREDICTIVE_MAINTENANCE</b><br/>• Table definitions<br/>• Relationships<br/>• Verified queries"]
+            ANALYST["Cortex Analyst<br/>• NLQ Interface<br/>• SQL Generation<br/>• Context-aware responses"]
+            COMPLETE["Cortex Complete (LLM)<br/>• 5-Why Analysis<br/>• Root cause explanations<br/>• Recommendations"]
+            
+            SEMANTIC --> ANALYST
+            ANALYST --> COMPLETE
+        end
+
+        RAW --> TELBRONZE
+        TELBRONZE --> TELSILVER
+        REGISTRY -.-> TELSILVER
+        TELSILVER --> FEATURES
+        FEATURES --> TRAINING
+        INFERENCE --> PRED_TABLE
+        PRED_TABLE --> RULES
+        PRED_TABLE --> SEMANTIC
+    end
+
+    subgraph SPCS["<b>SNOWPARK CONTAINER SERVICES</b>"]
+        direction TB
+        subgraph APP["<b>APPLICATION LAYER</b>"]
+            REACT["React Frontend<br/>• Dashboards<br/>• Predictions<br/>• NLQ Chat<br/>• 5-Why Dialog"]
+            FASTAPI["FastAPI Backend<br/>• REST APIs<br/>• Snowpark Queries<br/>• Cortex Integration"]
+            NGINX["NGINX Reverse Proxy<br/>SSL • Static Assets • Routing"]
+            
+            REACT <--> FASTAPI
+            NGINX --> REACT
+            NGINX --> FASTAPI
+        end
+        ENDPOINT["🌐 Public Endpoint<br/><i>Snowflake-Managed SSL/TLS</i>"]
+        NGINX --> ENDPOINT
+    end
+
+    subgraph USERS["<b>END USERS</b>"]
+        direction LR
+        TECH["👷 Maintenance<br/>Technicians"]
+        OPS["📊 Operations<br/>Managers"]
+        REL["⚙️ Reliability<br/>Engineers"]
+        EXEC["📈 Executive<br/>Leadership"]
+    end
+
+    HIVEMQ ==>|"MQTT/TLS"| SNOWPIPE
+    CORTEX --> FASTAPI
+    PRED_TABLE --> FASTAPI
+    ENDPOINT --> USERS
+
+    classDef floorStyle fill:#2E7D32,stroke:#1B5E20,color:#fff
+    classDef snowflakeStyle fill:#29B5E8,stroke:#1a8ab8,color:#fff
+    classDef layerStyle fill:#11567F,stroke:#0d4a6b,color:#fff
+    classDef componentStyle fill:#E3F2FD,stroke:#1976D2,color:#1565C0
+    classDef spcsStyle fill:#7B1FA2,stroke:#6A1B9A,color:#fff
+    classDef userStyle fill:#F5F5F5,stroke:#9E9E9E,color:#424242
+
+    class FLOOR floorStyle
+    class SNOWFLAKE snowflakeStyle
+    class SPCS spcsStyle
+    class USERS userStyle

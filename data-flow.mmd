@@ -1,0 +1,79 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#29B5E8', 'primaryTextColor': '#fff', 'primaryBorderColor': '#1a8ab8', 'lineColor': '#6E7781', 'secondaryColor': '#11567F', 'tertiaryColor': '#F4F4F4'}}}%%
+
+flowchart LR
+    subgraph STEP1["<b>1. CAPTURE</b>"]
+        S1["🔧 Sensors & PLCs<br/><i>Equipment sensors capture<br/>readings: temp, vibration,<br/>pressure, current</i>"]
+    end
+
+    subgraph STEP2["<b>2. AGGREGATE</b>"]
+        S2["📡 HiveMQ Broker<br/><i>MQTT broker aggregates<br/>messages with guaranteed<br/>delivery (QoS 1/2)</i>"]
+    end
+
+    subgraph STEP3["<b>3. INGEST</b>"]
+        S3["⚡ Snowpipe Streaming<br/><i>Continuous ingestion<br/>with sub-second latency<br/>into Snowflake</i>"]
+    end
+
+    subgraph STEP4["<b>4. PRESERVE</b>"]
+        S4["🥉 Bronze Layer<br/><i>Raw data preserved<br/>in original form for<br/>audit & reprocessing</i>"]
+    end
+
+    subgraph STEP5["<b>5. CURATE</b>"]
+        S5["🥈 Silver Layer<br/><i>Data cleansed, validated,<br/>enriched with asset<br/>context</i>"]
+    end
+
+    subgraph STEP6["<b>6. ENGINEER</b>"]
+        S6["🥇 Feature Store<br/><i>ML-ready features<br/>computed across multiple<br/>time windows</i>"]
+    end
+
+    S1 --> S2 --> S3 --> S4 --> S5 --> S6
+
+    subgraph STEP7["<b>7. TRAIN</b>"]
+        S7["🧠 Snowpark ML<br/><i>Train predictive models<br/>on historical failure<br/>patterns</i>"]
+    end
+
+    subgraph STEP8["<b>8. SCORE</b>"]
+        S8["📊 Inference Engine<br/><i>Trained models score<br/>current data to generate<br/>predictions</i>"]
+    end
+
+    subgraph STEP9["<b>9. PREDICT</b>"]
+        S9["🎯 Predictions Table<br/><i>Failure probabilities &<br/>recommendations stored<br/>for consumption</i>"]
+    end
+
+    subgraph STEP10["<b>10. CONVERSE</b>"]
+        S10["💬 Cortex Analyst<br/><i>Natural language interface<br/>enables conversational<br/>data access</i>"]
+    end
+
+    subgraph STEP11["<b>11. PRESENT</b>"]
+        S11["🖥️ Application<br/><i>React/FastAPI app<br/>presents insights and<br/>enables action</i>"]
+    end
+
+    subgraph STEP12["<b>12. ACT</b>"]
+        S12["👷 End Users<br/><i>Maintenance teams<br/>receive alerts & take<br/>preventive action</i>"]
+    end
+
+    S6 --> S7 --> S8 --> S9 --> S10 --> S11 --> S12
+
+    classDef capture fill:#2E7D32,stroke:#1B5E20,color:#fff
+    classDef transport fill:#FF6F00,stroke:#E65100,color:#fff
+    classDef ingest fill:#1565C0,stroke:#0D47A1,color:#fff
+    classDef bronze fill:#8D6E63,stroke:#6D4C41,color:#fff
+    classDef silver fill:#78909C,stroke:#546E7A,color:#fff
+    classDef gold fill:#FFC107,stroke:#FFA000,color:#000
+    classDef ml fill:#7B1FA2,stroke:#6A1B9A,color:#fff
+    classDef predict fill:#29B5E8,stroke:#1a8ab8,color:#fff
+    classDef ai fill:#00BCD4,stroke:#0097A7,color:#fff
+    classDef app fill:#E91E63,stroke:#C2185B,color:#fff
+    classDef user fill:#4CAF50,stroke:#388E3C,color:#fff
+
+    class STEP1 capture
+    class STEP2 transport
+    class STEP3 ingest
+    class STEP4 bronze
+    class STEP5 silver
+    class STEP6 gold
+    class STEP7 ml
+    class STEP8 ml
+    class STEP9 predict
+    class STEP10 ai
+    class STEP11 app
+    class STEP12 user

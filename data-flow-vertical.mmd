@@ -1,0 +1,97 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#29B5E8', 'primaryTextColor': '#fff', 'lineColor': '#6E7781'}}}%%
+
+flowchart TB
+    subgraph EDGE["🏭 <b>EDGE / MANUFACTURING FLOOR</b>"]
+        direction LR
+        PLC["PLCs & RTUs"]
+        SENSOR["IoT Sensors"]
+        GATEWAY["Edge Gateways"]
+        PLC --- SENSOR --- GATEWAY
+    end
+
+    subgraph MQTT["📡 <b>MESSAGE BROKER</b>"]
+        HIVEMQ["<b>HiveMQ MQTT Broker</b><br/>Pub/Sub • QoS • TLS • Clustering"]
+    end
+
+    subgraph LANDING["⬇️ <b>DATA LANDING</b>"]
+        SNOWPIPE["<b>Snowpipe Streaming</b><br/>Serverless • Auto-scale • Sub-second"]
+    end
+
+    subgraph MEDALLION["<b>MEDALLION ARCHITECTURE</b>"]
+        direction TB
+        
+        subgraph B["🥉 BRONZE"]
+            BRONZE["<b>TELEMETRY_BRONZE</b><br/>Raw • Immutable • Audit Trail"]
+        end
+        
+        subgraph S["🥈 SILVER"]
+            SILVER["<b>TELEMETRY_SILVER</b><br/>Cleansed • Validated • Enriched"]
+            ASSETS["<b>ASSET_REGISTRY</b><br/>Master Data • Hierarchy"]
+        end
+        
+        subgraph G["🥇 GOLD"]
+            FEATURES["<b>ENTERPRISE_C_FEATURES</b><br/>Feature Store • ML-Ready"]
+        end
+        
+        BRONZE --> SILVER
+        ASSETS -.->|enrich| SILVER
+        SILVER --> FEATURES
+    end
+
+    subgraph MLOPS["🧠 <b>ML OPERATIONS</b>"]
+        direction LR
+        TRAIN["<b>Model Training</b><br/>Snowpark ML<br/>XGBoost • RF • DL"]
+        REGISTRY["<b>Model Registry</b><br/>Versions • Metrics"]
+        INFER["<b>Inference</b><br/>Real-time Scoring"]
+        TRAIN --> REGISTRY --> INFER
+    end
+
+    subgraph OUTPUTS["🎯 <b>PREDICTIONS & INTELLIGENCE</b>"]
+        direction LR
+        PREDS["<b>ASSET_PREDICTIONS</b><br/>Failure Probability<br/>RUL • SHAP Values"]
+        RULES["<b>PREDICTIVE_RULES</b><br/>Thresholds • Alerts<br/>Work Orders"]
+        PREDS --- RULES
+    end
+
+    subgraph AI["🤖 <b>CORTEX AI SERVICES</b>"]
+        direction LR
+        SEMANTIC["<b>Semantic View</b><br/>Data Model"]
+        ANALYST["<b>Cortex Analyst</b><br/>NLQ • SQL Gen"]
+        LLM["<b>Cortex Complete</b><br/>5-Why • Explanations"]
+        SEMANTIC --> ANALYST --> LLM
+    end
+
+    subgraph APPLICATION["🖥️ <b>APPLICATION (SPCS)</b>"]
+        direction LR
+        BACKEND["<b>FastAPI</b><br/>REST APIs"]
+        FRONTEND["<b>React</b><br/>Dashboards • Chat"]
+        BACKEND <--> FRONTEND
+    end
+
+    subgraph USERS["👥 <b>END USERS</b>"]
+        direction LR
+        MAINT["👷 Technicians"]
+        OPS["📊 Operators"]
+        ENGR["⚙️ Engineers"]
+        EXEC["📈 Executives"]
+    end
+
+    EDGE ==>|"MQTT/TLS"| MQTT
+    MQTT ==>|"Streaming"| LANDING
+    LANDING ==> MEDALLION
+    FEATURES ==> MLOPS
+    INFER ==> OUTPUTS
+    OUTPUTS ==> AI
+    OUTPUTS ==> APPLICATION
+    AI ==> APPLICATION
+    APPLICATION ==>|"HTTPS"| USERS
+
+    style EDGE fill:#2E7D32,stroke:#1B5E20,color:#fff
+    style MQTT fill:#FF6F00,stroke:#E65100,color:#fff
+    style LANDING fill:#1565C0,stroke:#0D47A1,color:#fff
+    style MEDALLION fill:#11567F,stroke:#0d4a6b,color:#fff
+    style MLOPS fill:#7B1FA2,stroke:#6A1B9A,color:#fff
+    style OUTPUTS fill:#29B5E8,stroke:#1a8ab8,color:#fff
+    style AI fill:#00BCD4,stroke:#0097A7,color:#fff
+    style APPLICATION fill:#E91E63,stroke:#C2185B,color:#fff
+    style USERS fill:#4CAF50,stroke:#388E3C,color:#fff
